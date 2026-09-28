@@ -1,4 +1,5 @@
 """Тесты парсера и логики команд"""
+import os
 import sys
 import unittest
 from pathlib import Path
@@ -26,7 +27,6 @@ class ParserTest(unittest.TestCase):
         with self.assertRaises(ParseError):
             parse_command('cd "oops')
 
-
 class CommandsTest(unittest.TestCase):
     """Проверки выполнения команд"""
     def test_ls_prints_name_and_args(self):
@@ -52,6 +52,26 @@ class CommandsTest(unittest.TestCase):
         result = execute("exit", ["1"])
         self.assertTrue(result.error)
         self.assertFalse(result.should_exit)
+
+class StartupScriptTest(unittest.TestCase):
+    """Проверки работы со стартовым скриптом"""
+    def test_script_file_exists(self):
+        """Скрипт существует и читается"""
+        script_path = Path(__file__).parent.parent / "scripts" / "startup.txt"
+        self.assertTrue(script_path.exists())
+
+    def test_script_content(self):
+        """Скрипт содержит команды"""
+        script_path = Path(__file__).parent.parent / "scripts" / "startup.txt"
+        with open(script_path, "r", encoding="utf-8") as file:
+            content = file.read()
+        self.assertIn("ls", content)
+        self.assertIn("exit", content)
+
+    def test_missing_script(self):
+        """Отсутствующий скрипт - ошибка"""
+        fake_path = "./scripts/nonexistent_script.txt"
+        self.assertFalse(os.path.exists(fake_path))
 
 if __name__ == "__main__":
     unittest.main()

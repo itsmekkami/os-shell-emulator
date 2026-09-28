@@ -1,0 +1,5 @@
+ls -la
+cd /tmp
+pwd
+qwerty
+cd "My Doc"
