@@ -1,5 +1,14 @@
-ls -la
+ls
+ls /
+cat /readme.txt
 cd /tmp
 pwd
+ls
+cat temp.txt
+cd /
+ls
+cat /readme.txt
+cat /nonexistent.txt
+cd /nonexistent
 qwerty
-cd "My Doc"
+exit

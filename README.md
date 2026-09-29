@@ -6,10 +6,11 @@
 
 **Реализованные этапы:**
 
-- Этап 1 — REPL: диалог с пользователем поддерживается,
+- Этап 1 - REPL: диалог с пользователем поддерживается,
   большинство команд пока заглушки.
-- Этап 2 — Конфигурация: поддержка параметров командной строки
+- Этап 2 - Конфигурация: поддержка параметров командной строки
   и выполнение стартового скрипта.
+- Этап 3 - VFS: виртуальная файловая система на основе XML.
 
 Требуется Python 3.9+ с установленным tkinter.
 
@@ -19,16 +20,23 @@
 - `src/gui.py` - графический интерфейс (окно, ввод, вывод);
 - `src/commands.py` - логика команд `ls`, `cd`, `exit`;
 - `src/command_parser.py` - разбор строки на команду и аргументы;
+- `src/vfs.py` - виртуальная файловая система;
 - `tests/test_shell.py` - тесты парсера, команд и скрипта;
 - `scripts/startup.txt` - пример стартового скрипта;
 - `scripts/run_default.bat` - запуск без параметров;
 - `scripts/run_with_script.bat` - запуск со скриптом;
-- `scripts/run_with_vfs.bat` - запуск с VFS;
+- `scripts/run_with_vfs_minimal.bat` - запуск с минимальным VFS;
+- `scripts/run_with_vfs_simple.bat` - запуск с простым VFS;
+- `scripts/run_with_vfs_deep.bat` - запуск с глубоким VFS;
 - `scripts/run_invalid.bat` - запуск с несуществующим скриптом;
-- `vfs/` - виртуальная файловая система (пустая на этапе 2);
+- `run_invalid_vfs.bat` - запуск с несуществующим VFS;
+- `vfs/minimal.xml` - пустая VFS;
+- `vfs/simple.xml` - несколько файлов;
+- `vfs/deep.xml` - 3+ уровня вложенности;
 - `run.sh` - запуск эмулятора (Linux/macOS);
 - `run.bat` - запуск эмулятора (Windows);
 - `README.md`
+- `.gitignore`
 
 ## Описание функций и настроек
 
@@ -58,13 +66,16 @@
 - Неверные аргументы.
 - Незакрытая кавычка.
 - Отсутствующий файл скрипта.
+- Отсутствующий файл/папка в VFS.
 
 ## Команды
 
 | Команда | Описание |
 | :--- | :--- |
-| `ls [args...]` | Заглушка - выводит имя и аргументы |
-| `cd [dir]` | Заглушка - выводит имя и аргументы (максимум 1 аргумент) |
+| `ls [path]` | Показывает содержимое папки|
+| `cd <path>` | Меняет текущую папку |
+| `pwd` | Показывает текущий путь |
+| `cat <file>` | Читает содержимое файла |
 | `exit` | Завершает работу эмулятора |
 
 ## Настройки
@@ -79,7 +90,7 @@
 
 | Параметр | По умолчанию | Описание |
 | :--- | :--- | :--- |
-| `--vfs PATH` | `./vfs` | Путь к виртуальной файловой системе |
+| `--vfs PATH` | `./vfs/minimal.xml` | Путь к XML-файлу VFS |
 | `--script PATH` | `None` | Путь к стартовому скрипту |
 | `-h, --help` | - | Показать справку |
 
@@ -94,21 +105,18 @@
 
 ```
 Параметры запуска:
-VFS: ./vfs
+VFS: ./vfs/minimal.xml
 Скрипт: ./scripts/startup.txt
 ```
 
 ## Виртуальная файловая система (VFS)
 
-VFS (Virtual File System) — виртуальная файловая система,
+VFS (Virtual File System) - виртуальная файловая система,
 хранящаяся в реальной папке на диске.
 
 Путь к VFS задаётся параметром `--vfs`
 
-На этапе 2 VFS не используется - это задел для будущих этапов.
-Реальные операции с файлами будут добавлены позже.
-
-По умолчанию: `./vfs`
+Все операции производятся в памяти - реальные файлы на диске не изменяются.
 
 ## Стартовый скрипт
 
@@ -120,11 +128,17 @@ VFS (Virtual File System) — виртуальная файловая систе
 ### Формат файла
 
 ```
-ls -la
+ls
+ls /
+cat /readme.txt
 cd /tmp
 pwd
+ls
+cat temp.txt
+cd /
+cat /nonexistent.txt
+cd /nonexistent
 qwerty
-cd "My Doc"
 exit
 ```
 
@@ -136,41 +150,6 @@ exit
 4. Ошибочные строки (неизвестные команды, ошибки парсинга) пропускаются.
 5. При `exit` - окно закрывается, выполнение прекращается.
 6. Если файла нет - выводится сообщение об ошибке.
-
-### Пример работы
-
-При запуске:
-
-```
-python src/main.py --script ./scripts/startup.txt
-```
-
-В окне появится:
-
-```
-Параметры запуска:
-VFS: ./vfs
-Скрипт: ./scripts/startup.txt
-
-Выполнение скрипта: ./scripts/startup.txt
-Надежда@LAPTOP$ ls -la
-ls: аргументы = ['-la']
-
-Надежда@LAPTOP$ cd /tmp
-cd: аргументы = ['/tmp']
-
-Надежда@LAPTOP$ pwd
-pwd: команда не найдена
-
-Надежда@LAPTOP$ qwerty
-qwerty: команда не найдена
-
-Надежда@LAPTOP$ cd "My Doc"
-cd: аргументы = ['My Doc']
-
-Надежда@LAPTOP$ exit
-Скрипт выполнен
-```
 
 ## Сборка и запуск
 
@@ -187,25 +166,13 @@ Windows: `run.bat`
 **С VFS:**
 
 ```
-python src/main.py --vfs ./my_vfs
+python src/main.py --vfs ./vfs/simple.xml
 ```
 
 **Со скриптом:**
 
 ```
 python src/main.py --script ./scripts/startup.txt
-```
-
-**Со всем вместе:**
-
-```
-python src/main.py --vfs ./my_vfs --script ./scripts/startup.txt
-```
-
-**Справка:**
-
-```
-python src/main.py --help
 ```
 
 ## Готовые скрипты запуска
@@ -217,8 +184,11 @@ python src/main.py --help
 | :--- | :--- |
 | `run_default.bat` | Запуск без параметров |
 | `run_with_script.bat` | Запуск со стартовым скриптом |
-| `run_with_vfs.bat` | Запуск с VFS |
-| `run_invalid.bat` | Запуск с несуществующим скриптом (проверка ошибки) |
+| `run_with_vfs_minimal.bat` | Запуск с `minimal.xml` |
+| `run_with_vfs_simple.bat` | Запуск с `simple.xml` |
+| `run_with_vfs_deep.bat` | Запуск с `deep.xml` |
+| `run_invalid.bat` | Запуск с несуществующим скриптом |
+| `run_invalid_vfs.bat` | Запуск с несуществующим VFS |
 
 ## Запуск тестов
 
@@ -228,37 +198,43 @@ python src/main.py --help
 
 ### Ручной ввод команд
 
-    user@host$ ls
-    ls: аргументы = []
+```
+user@host$ ls
+notes.txt
+readme.txt
+tmp
 
-    user@host$ ls -la /home
-    ls: аргументы = ['-la', '/home']
+user@host$ cat readme.txt
+Добро пожаловать в эмулятор!
 
-    user@host$ cd /tmp
-    cd: аргументы = ['/tmp']
+user@host$ cd tmp
+user@host$ pwd
+/tmp
 
-    user@host$ cd "My Docs"
-    cd: аргументы = ['My Docs']
+user@host$ ls
+temp.txt
 
-    user@host$ cd 'My Docs'
-    cd: аргументы = ['My Docs']
+user@host$ cat temp.txt
+Временный файл
 
-    user@host$ cd a b
-    cd: слишком много аргументов
+user@host$ cd /
+user@host$ pwd
+/
 
-    user@host$ cd "My Docs
-    ошибка разбора: No closing quotation
+user@host$ cat /nonexistent.txt
+cat: не найдено: /nonexistent.txt
 
-    user@host$ qwerty
-    qwerty: команда не найдена
+user@host$ qwerty
+qwerty: команда не найдена
 
-    user@host$ exit
-
-### Запуск со скриптом
-
-`python src/main.py --script ./scripts/startup.txt`
+user@host$ exit
+```
 
 ### Обработка ошибок
+
+Несуществующий VFS: `python src/main.py --vfs ./vfs/nonexistent.xml`
+
+В окне появится: `Ошибка: файл VFS не найден: ./vfs/nonexistent.xml`
 
 Несуществующий скрипт: `python src/main.py --script ./scripts/nonexistent.txt`
 

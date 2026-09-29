@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vfs>
+  <directory name="/">
+    <directory name="home">
+      <directory name="student">
+        <directory name="projects">
+          <file name="readme.txt">
+            <content>Мои учебные проекты</content>
+          </file>
+          <file name="notes.txt">
+            <content>Конспекты лекций:
+1. Python
+2. Git
+3. Tkinter</content>
+          </file>
+        </directory>
+        <directory name="music">
+          <file name="playlist.txt">
+            <content>Мой плейлист:
+- Песня 1
+- Песня 2
+- Песня 3</content>
+          </file>
+        </directory>
+      </directory>
+    </directory>
+    <directory name="tmp">
+    </directory>
+  </directory>
+</vfs>

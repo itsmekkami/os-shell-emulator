@@ -1,5 +1,5 @@
 @echo off
 
 cd /d "%~dp0.."
-python src\main.py --vfs ./vfs
+python src\main.py --vfs ./vfs/deep.xml
 pause

@@ -1,5 +1,6 @@
 """Команды эмулятора"""
 from typing import Callable
+from vfs import VFS, VFSError
 
 MAX_CD_ARGS = 1
 
@@ -10,35 +11,60 @@ class Result:
         self.error = error
         self.should_exit = should_exit
 
-def format_stub(name: str, args: list[str]):
-    """Формирует вывод заглушки"""
-    return f"{name}: аргументы = {args}"
+def cmd_ls(args: list[str], vfs: VFS):
+    """Команда ls - показывает содержимое папки"""
+    path = args[0] if args else None
+    try:
+        items = vfs.list_dir(path)
+    except VFSError as error:
+        return Result(error=f"ls: {error}")
+    if not items:
+        return Result(output="")
+    return Result(output="\n".join(items))
 
-def cmd_ls(args: list[str]):
-    """Заглушка команды ls"""
-    return Result(output=format_stub("ls", args))
-
-def cmd_cd(args: list[str]):
-    """Заглушка команды cd"""
+def cmd_cd(args: list[str], vfs: VFS):
+    """Команда cd - меняет текущую папку"""
     if len(args) > MAX_CD_ARGS:
         return Result(error="cd: слишком много аргументов")
-    return Result(output=format_stub("cd", args))
+    if not args:
+        return Result(error="cd: нужен аргумент")
+    try:
+        vfs.change_dir(args[0])
+    except VFSError as error:
+        return Result(error=f"cd: {error}")
+    return Result(output="")
 
-def cmd_exit(args: list[str]):
-    """Команда exit"""
+def cmd_pwd(args: list[str], vfs: VFS):
+    """Команда pwd - показывает текущий путь"""
+    return Result(output=vfs.current_path)
+
+def cmd_cat(args: list[str], vfs: VFS):
+    """Команда cat - читает файл"""
+    if not args:
+        return Result(error="cat: нужен аргумент")
+    try:
+        content = vfs.read_file(args[0])
+    except VFSError as error:
+        return Result(error=f"cat: {error}")
+    return Result(output=content)
+
+def cmd_exit(args: list[str], vfs: VFS):
+    """Команда exit - завершает работу"""
     if args:
         return Result(error="exit: команда не принимает аргументов")
     return Result(should_exit=True)
 
-COMMANDS: dict[str, Callable[[list[str]], Result]] = {
+COMMANDS: dict[str, Callable] = {
     "ls": cmd_ls,
     "cd": cmd_cd,
+    "pwd": cmd_pwd,
+    "cat": cmd_cat,
     "exit": cmd_exit,
 }
 
-def execute(name: str, args: list[str]):
+def execute(name: str, args: list[str], vfs: VFS):
     """Находит и выполняет команду по имени"""
     handler = COMMANDS.get(name)
     if handler is None:
         return Result(error=f"{name}: команда не найдена")
-    return handler(args)
+    return handler(args, vfs)

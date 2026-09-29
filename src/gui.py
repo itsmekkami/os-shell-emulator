@@ -4,9 +4,9 @@ import os
 import socket
 import tkinter as tk
 from tkinter import scrolledtext
-
 from command_parser import ParseError, parse_command
 from commands import execute
+from vfs import VFS, VFSError
 
 BG_COLOR = "#1e1e1e"
 FG_COLOR = "#d4d4d4"
@@ -23,7 +23,7 @@ def get_prompt():
 
 class ShellEmulator:
     """Окно эмулятора: область вывода и строка ввода"""
-    def __init__(self, root: tk.Tk, vfs_path: str = "./vfs",
+    def __init__(self, root: tk.Tk, vfs_path: str = "./vfs/minimal.xml",
                  script_path: str = None):
         """Конструктор класса"""
         self.root = root
@@ -32,6 +32,7 @@ class ShellEmulator:
         self.prompt = get_prompt()
         self.root.title(get_window_title())
         self._build_widgets()
+        self._load_vfs()
         self._print_startup_info()
         if self.script_path:
             self._run_script()
@@ -53,6 +54,17 @@ class ShellEmulator:
         self.entry.bind("<Return>", self._on_enter)
         self.entry.focus_set()
 
+    def _load_vfs(self):
+        """Загружает VFS из XML-файла"""
+        self.vfs = VFS()
+        if not os.path.exists(self.vfs_path):
+            self._print(f"Ошибка: файл VFS не найден: {self.vfs_path}", "error")
+            return
+        try:
+            self.vfs.load_from_xml(self.vfs_path)
+        except Exception as error:
+            self._print(f"Ошибка загрузки VFS: {error}", "error")
+
     def _print(self, text: str, tag: str = ""):
         """Добавляет строку в область вывода"""
         self.output.config(state="normal")
@@ -68,7 +80,7 @@ class ShellEmulator:
 
     def _run_script(self):
         """Выполняет команды из стартового скрипта"""
-        if os.path.exists(self.script_path) == False:
+        if not os.path.exists(self.script_path):
             self._print(f"Ошибка: файл скрипта не найден: {self.script_path}",
                 "error")
             return
@@ -97,7 +109,7 @@ class ShellEmulator:
             return True
         if not name:
             return True
-        result = execute(name, args)
+        result = execute(name, args, self.vfs)
         if result.output:
             self._print(result.output)
         if result.error:
@@ -123,7 +135,7 @@ class ShellEmulator:
             return
         if not name:
             return
-        result = execute(name, args)
+        result = execute(name, args, self.vfs)
         if result.output:
             self._print(result.output)
         if result.error:
