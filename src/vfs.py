@@ -1,6 +1,6 @@
 """Виртуальная файловая система (VFS) в памяти"""
 import base64
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as et
 
 class VFSError(Exception):
     """Ошибка работы с VFS"""
@@ -14,7 +14,7 @@ class VFS:
 
     def load_from_xml(self, path: str):
         """Загружает VFS из XML-файла"""
-        tree = ET.parse(path)
+        tree = et.parse(path)
         root_element = tree.getroot()
         self.root = self._parse_vfs_root(root_element)
         self.current_path = "/"

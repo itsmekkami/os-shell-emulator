@@ -91,33 +91,44 @@ class ShellEmulator:
             self._print(f"Ошибка чтения скрипта: {error}", "error")
             return
         self._print(f"Выполнение скрипта: {self.script_path}")
+        errors = []
         for line in lines:
             line = line.rstrip("\n")
             if not line.strip():
                 continue
             self._print(f"{self.prompt} {line}")
-            if not self._execute_silent(line):
+            error = self._execute_silent(line)
+            if error == "__EXIT__":
                 return
-        self._print("Скрипт выполнен")
+            if error:
+                errors.append(error)
+
+        if errors:
+            self._print("Скрипт выполнен с ошибками:", "error")
+            for err in errors:
+                self._print(f"  - {err}", "error")
+        else:
+            self._print("Скрипт выполнен")
 
     def _execute_silent(self, line: str):
-        """Выполняет строку. Возвращает False, если нужно выйти"""
+        """Выполняет строку. Возвращает текст ошибки или None"""
         try:
             name, args = parse_command(line)
         except ParseError as error:
             self._print(str(error), "error")
-            return True
+            return str(error)
         if not name:
-            return True
+            return None
         result = execute(name, args, self.vfs)
         if result.output:
             self._print(result.output)
         if result.error:
             self._print(result.error, "error")
+            return result.error
         if result.should_exit:
             self.root.destroy()
-            return False
-        return True
+            return "__EXIT__"
+        return None
 
     def _on_enter(self, _event: tk.Event):
         """Обрабатывает нажатие Enter"""

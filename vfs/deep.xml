@@ -5,21 +5,15 @@
       <directory name="student">
         <directory name="projects">
           <file name="readme.txt">
-            <content>Мои учебные проекты</content>
+            <content encoding="base64">0JzQvtC4INGD0YfQtdCx0L3Ri9C1INC/0YDQvtC10LrRgtGL</content>
           </file>
           <file name="notes.txt">
-            <content>Конспекты лекций:
-1. Python
-2. Git
-3. Tkinter</content>
+            <content encoding="base64">0JrQvtC90YHQv9C10LrRgtGLINC70LXQutGG0LjQuToKMS4gUHl0aG9uCjIuIEdpdAozLiBUa2ludGVy</content>
           </file>
         </directory>
         <directory name="music">
           <file name="playlist.txt">
-            <content>Мой плейлист:
-- Песня 1
-- Песня 2
-- Песня 3</content>
+            <content encoding="base64">0JzQvtC5INC/0LvQtdC50LvQuNGB0YI6Ci0g0J/RgdC10L3RjyAxCi0g0J/RgdC10L3RjyAyCi0g0J/RgdC10L3RjyAz</content>
           </file>
         </directory>
       </directory>

@@ -1,14 +1,15 @@
 ls
-ls /
-cat /readme.txt
+ls -la
 cd /tmp
+ls_dbg
 pwd
-ls
+cd_dbg /tmp
+pwd
+ls_dbg
 cat temp.txt
-cd /
-ls
+cd_dbg /
+ls_dbg
 cat /readme.txt
 cat /nonexistent.txt
-cd /nonexistent
+cd_dbg /nonexistent
 qwerty
-exit

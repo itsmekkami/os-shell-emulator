@@ -2,14 +2,14 @@
 <vfs>
   <directory name="/">
     <file name="readme.txt">
-      <content>Добро пожаловать в эмулятор!</content>
+      <content encoding="base64">0JTRg9Cx0YDQviDQv9C+0LbQsNC70L7QstCw0YLRjCDQsiDRjdC80YPQu9GP0YLQvtGAIQ==</content>
     </file>
     <file name="notes.txt">
-      <content>Список заметок</content>
+      <content encoding="base64">0KHQv9C40YHQvtC6INC30LDQvNC10YLQvtC6</content>
     </file>
     <directory name="tmp">
       <file name="temp.txt">
-        <content>Временный файл</content>
+        <content encoding="base64">0JLRgNC10LzQtdC90L3Ri9C5INGE0LDQudC7</content>
       </file>
     </directory>
   </directory>
