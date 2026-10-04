@@ -106,7 +106,7 @@ class ShellEmulator:
         if errors:
             self._print("Скрипт выполнен с ошибками:", "error")
             for err in errors:
-                self._print(f"  - {err}", "error")
+                self._print(f" - {err}", "error")
         else:
             self._print("Скрипт выполнен")
 

@@ -1,8 +1,14 @@
 """Команды эмулятора"""
+import getpass
+import platform
+import socket
+from datetime import datetime
 from typing import Callable
+
 from vfs import VFS, VFSError
 
 MAX_CD_ARGS = 1
+
 
 class Result:
     """Результат выполнения команды"""
@@ -10,18 +16,8 @@ class Result:
         self.output = output
         self.error = error
         self.should_exit = should_exit
+
 def cmd_ls(args: list[str], vfs: VFS):
-    """Заглушка команды ls - выводит имя и аргументы"""
-    return Result(output=f"ls: аргументы = {args}")
-
-
-def cmd_cd(args: list[str], vfs: VFS):
-    """Заглушка команды cd - выводит имя и аргументы"""
-    if len(args) > MAX_CD_ARGS:
-        return Result(error="cd: слишком много аргументов")
-    return Result(output=f"cd: аргументы = {args}")
-
-def cmd_ls_dbg(args: list[str], vfs: VFS):
     """Команда ls - показывает содержимое папки"""
     path = args[0] if args else None
     try:
@@ -32,7 +28,7 @@ def cmd_ls_dbg(args: list[str], vfs: VFS):
         return Result(output="")
     return Result(output="\n".join(items))
 
-def cmd_cd_dbg(args: list[str], vfs: VFS):
+def cmd_cd(args: list[str], vfs: VFS):
     """Команда cd - меняет текущую папку"""
     if len(args) > MAX_CD_ARGS:
         return Result(error="cd: слишком много аргументов")
@@ -58,6 +54,26 @@ def cmd_cat(args: list[str], vfs: VFS):
         return Result(error=f"cat: {error}")
     return Result(output=content)
 
+def cmd_uname(args: list[str], vfs: VFS):
+    """Команда uname - информация о системе"""
+    if "-a" in args:
+        info = [
+            platform.system(),
+            platform.node(),
+            platform.release(),
+            platform.version(),
+            platform.machine(),
+        ]
+        return Result(output=" ".join(info))
+    return Result(output=platform.system())
+
+def cmd_who(args: list[str], vfs: VFS):
+    """Команда who - список пользователей в системе"""
+    user = getpass.getuser()
+    host = socket.gethostname()
+    now = datetime.now().strftime("%Y-%m-%d %H:%M")
+    return Result(output=f"{user}    {host}   {now}")
+
 def cmd_exit(args: list[str], vfs: VFS):
     """Команда exit - завершает работу"""
     if args:
@@ -67,10 +83,10 @@ def cmd_exit(args: list[str], vfs: VFS):
 COMMANDS: dict[str, Callable] = {
     "ls": cmd_ls,
     "cd": cmd_cd,
-    "ls_dbg": cmd_ls_dbg,
-    "cd_dbg": cmd_cd_dbg,
     "pwd": cmd_pwd,
     "cat": cmd_cat,
+    "uname": cmd_uname,
+    "who": cmd_who,
     "exit": cmd_exit,
 }
 

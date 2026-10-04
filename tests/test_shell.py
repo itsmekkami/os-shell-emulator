@@ -132,6 +132,32 @@ class CommandsTest(unittest.TestCase):
         self.assertTrue(result.error)
         self.assertFalse(result.should_exit)
 
+class NewCommandsTest(unittest.TestCase):
+    """Проверки новых команд Этапа 4"""
+    def setUp(self):
+        """Загружает VFS перед каждым тестом"""
+        self.vfs = VFS()
+        path = Path(__file__).parent.parent / "vfs" / "simple.xml"
+        self.vfs.load_from_xml(str(path))
+
+    def test_uname(self):
+        """uname выводит информацию о системе"""
+        result = execute("uname", [], self.vfs)
+        self.assertFalse(result.error)
+        self.assertTrue(len(result.output) > 0)
+
+    def test_uname_all(self):
+        """uname -a выводит расширенную информацию"""
+        result = execute("uname", ["-a"], self.vfs)
+        self.assertFalse(result.error)
+        self.assertIn(" ", result.output)
+
+    def test_who(self):
+        """who выводит пользователя"""
+        result = execute("who", [], self.vfs)
+        self.assertFalse(result.error)
+        self.assertTrue(len(result.output) > 0)
+
 class StartupScriptTest(unittest.TestCase):
     """Проверки работы со стартовым скриптом"""
     def test_script_file_exists(self):
@@ -148,7 +174,7 @@ class StartupScriptTest(unittest.TestCase):
         self.assertIn("cd", content)
 
     def test_missing_script(self):
-        """Отсутствующий скрипт - не существует"""
+        """Отсутствующий скрипт - ошибка"""
         fake_path = "./scripts/nonexistent_script.txt"
         self.assertFalse(os.path.exists(fake_path))
 

@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <vfs>
   <directory name="/">
-    <file name="readme.txt">
-      <content>Обычный текстовый файл</content>
-    </file>
-    <file name="hello.bin">
-      <content encoding="base64">SGVsbG8gV29ybGQh</content>
-    </file>
-    <file name="secret.bin">
-      <content encoding="base64">0J/RgNC40LLQtdGCINC80LjRgCE=</content>
-    </file>
   </directory>
 </vfs>

@@ -11,6 +11,7 @@
 - Этап 2 - Конфигурация: поддержка параметров командной строки
   и выполнение стартового скрипта.
 - Этап 3 - VFS: виртуальная файловая система на основе XML.
+- Этап 4 - Основные команды: поддержка команд ls, cd, cat, who, uname.
 
 Требуется Python 3.9+ с установленным tkinter.
 
@@ -18,7 +19,7 @@
 
 - `src/main.py` - точка входа;
 - `src/gui.py` - графический интерфейс (окно, ввод, вывод);
-- `src/commands.py` - логика команд `ls`, `cd`, `exit`;
+- `src/commands.py` - логика команд `ls`, `cd`, `uname`, `cat`, `who`, `exit`;
 - `src/command_parser.py` - разбор строки на команду и аргументы;
 - `src/vfs.py` - виртуальная файловая система;
 - `tests/test_shell.py` - тесты парсера, команд и скрипта;
@@ -27,9 +28,9 @@
 - `scripts/run_with_script.bat` - запуск со скриптом;
 - `scripts/run_with_vfs_minimal.bat` - запуск с минимальным VFS;
 - `scripts/run_with_vfs_simple.bat` - запуск с простым VFS;
-- `scripts/run_with_vfs_deep.bat` - запуск с глубоким VFS;
+- `scripts/run_with_vfs.bat` - запуск с глубоким VFS;
 - `scripts/run_invalid.bat` - запуск с несуществующим скриптом;
-- `run_invalid_vfs.bat` - запуск с несуществующим VFS;
+- `scripts/run_invalid_vfs.bat` - запуск с несуществующим VFS;
 - `vfs/minimal.xml` - пустая VFS;
 - `vfs/simple.xml` - несколько файлов;
 - `vfs/deep.xml` - 3+ уровня вложенности;
@@ -64,7 +65,6 @@
 
 - Неизвестная команда.
 - Неверные аргументы.
-- Незакрытая кавычка.
 - Отсутствующий файл скрипта.
 - Отсутствующий файл/папка в VFS.
 
@@ -72,10 +72,12 @@
 
 | Команда | Описание |
 | :--- | :--- |
-| `ls [path]` | Показывает содержимое папки|
+| `ls [path]` | Показывает содержимое папки |
 | `cd <path>` | Меняет текущую папку |
 | `pwd` | Показывает текущий путь |
 | `cat <file>` | Читает содержимое файла |
+| `uname [-a]` | Показывает информацию о системе |
+| `who` | Показывает пользователей в системе |
 | `exit` | Завершает работу эмулятора |
 
 ## Настройки
@@ -128,18 +130,15 @@ VFS (Virtual File System) - виртуальная файловая систем
 ### Формат файла
 
 ```
+uname
+uname -a
+who
 ls
-ls /
-cat /readme.txt
+cat readme.txt
 cd /tmp
 pwd
-ls
-cat temp.txt
-cd /
 cat /nonexistent.txt
-cd /nonexistent
 qwerty
-exit
 ```
 
 ### Как работает
@@ -186,56 +185,10 @@ python src/main.py --script ./scripts/startup.txt
 | `run_with_script.bat` | Запуск со стартовым скриптом |
 | `run_with_vfs_minimal.bat` | Запуск с `minimal.xml` |
 | `run_with_vfs_simple.bat` | Запуск с `simple.xml` |
-| `run_with_vfs_deep.bat` | Запуск с `deep.xml` |
+| `run_with_vfs.bat` | Запуск с `deep.xml` |
 | `run_invalid.bat` | Запуск с несуществующим скриптом |
 | `run_invalid_vfs.bat` | Запуск с несуществующим VFS |
 
 ## Запуск тестов
 
 `python -m unittest discover -s tests -v`
-
-## Примеры использования
-
-### Ручной ввод команд
-
-```
-user@host$ ls
-notes.txt
-readme.txt
-tmp
-
-user@host$ cat readme.txt
-Добро пожаловать в эмулятор!
-
-user@host$ cd tmp
-user@host$ pwd
-/tmp
-
-user@host$ ls
-temp.txt
-
-user@host$ cat temp.txt
-Временный файл
-
-user@host$ cd /
-user@host$ pwd
-/
-
-user@host$ cat /nonexistent.txt
-cat: не найдено: /nonexistent.txt
-
-user@host$ qwerty
-qwerty: команда не найдена
-
-user@host$ exit
-```
-
-### Обработка ошибок
-
-Несуществующий VFS: `python src/main.py --vfs ./vfs/nonexistent.xml`
-
-В окне появится: `Ошибка: файл VFS не найден: ./vfs/nonexistent.xml`
-
-Несуществующий скрипт: `python src/main.py --script ./scripts/nonexistent.txt`
-
-В окне появится: `Ошибка: файл скрипта не найден: ./scripts/nonexistent.txt`

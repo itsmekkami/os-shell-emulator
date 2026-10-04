@@ -1,15 +1,9 @@
+uname
+uname -a
+who
 ls
-ls -la
+cat readme.txt
 cd /tmp
-ls_dbg
 pwd
-cd_dbg /tmp
-pwd
-ls_dbg
-cat temp.txt
-cd_dbg /
-ls_dbg
-cat /readme.txt
 cat /nonexistent.txt
-cd_dbg /nonexistent
 qwerty
