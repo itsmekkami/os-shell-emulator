@@ -74,6 +74,16 @@ def cmd_who(args: list[str], vfs: VFS):
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
     return Result(output=f"{user}    {host}   {now}")
 
+def cmd_mkdir(args: list[str], vfs: VFS):
+    """Команда mkdir - создаёт папку"""
+    if not args:
+        return Result(error="mkdir: нужен аргумент")
+    try:
+        vfs.make_dir(args[0])
+    except VFSError as error:
+        return Result(error=str(error))
+    return Result(output="")
+
 def cmd_exit(args: list[str], vfs: VFS):
     """Команда exit - завершает работу"""
     if args:
@@ -87,6 +97,7 @@ COMMANDS: dict[str, Callable] = {
     "cat": cmd_cat,
     "uname": cmd_uname,
     "who": cmd_who,
+    "mkdir": cmd_mkdir,
     "exit": cmd_exit,
 }
 

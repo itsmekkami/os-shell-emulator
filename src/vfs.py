@@ -104,3 +104,22 @@ class VFS:
                 self.current_path = "/" + path
             else:
                 self.current_path = self.current_path + "/" + path
+
+    def make_dir(self, path: str):
+        """Создаёт новую папку в VFS"""
+        if "/" in path.rstrip("/"):
+            parent_path, name = path.rsplit("/", 1)
+            if not parent_path:
+                parent_path = "/"
+        else:
+            parent_path = self.current_path
+            name = path
+        name = name.strip("/")
+        if not name:
+            raise VFSError("mkdir: не указано имя папки")
+        parent = self._get_node(parent_path)
+        if parent["type"] != "dir":
+            raise VFSError(f"mkdir: не папка: {parent_path}")
+        if name in parent["children"]:
+            raise VFSError(f"mkdir: уже существует: {name}")
+        parent["children"][name] = {"type": "dir", "children": {}}

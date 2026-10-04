@@ -2,8 +2,17 @@ uname
 uname -a
 who
 ls
-cat readme.txt
 cd /tmp
 pwd
+cat temp.txt
+cd /
+mkdir test_dir
+ls
+mkdir test_dir/sub_dir
+ls test_dir
+mkdir
+mkdir test_dir
 cat /nonexistent.txt
+ls /nonexistent
+cd /nonexistent
 qwerty

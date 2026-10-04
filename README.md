@@ -12,14 +12,14 @@
   и выполнение стартового скрипта.
 - Этап 3 - VFS: виртуальная файловая система на основе XML.
 - Этап 4 - Основные команды: поддержка команд ls, cd, cat, who, uname.
-
+- Этап 5 - Дополнительные команды: поддержка команды mkdir.
 Требуется Python 3.9+ с установленным tkinter.
 
 ## Структура проекта
 
 - `src/main.py` - точка входа;
 - `src/gui.py` - графический интерфейс (окно, ввод, вывод);
-- `src/commands.py` - логика команд `ls`, `cd`, `uname`, `cat`, `who`, `exit`;
+- `src/commands.py` - логика команд `ls`, `cd`, `uname`, `cat`, `who`, `mkdir`, `exit`;
 - `src/command_parser.py` - разбор строки на команду и аргументы;
 - `src/vfs.py` - виртуальная файловая система;
 - `tests/test_shell.py` - тесты парсера, команд и скрипта;
@@ -78,6 +78,7 @@
 | `cat <file>` | Читает содержимое файла |
 | `uname [-a]` | Показывает информацию о системе |
 | `who` | Показывает пользователей в системе |
+| `mkdir <path>` | Создаёт новую папку |
 | `exit` | Завершает работу эмулятора |
 
 ## Настройки
@@ -134,10 +135,19 @@ uname
 uname -a
 who
 ls
-cat readme.txt
 cd /tmp
 pwd
+cat temp.txt
+cd /
+mkdir test_dir
+ls
+mkdir test_dir/sub_dir
+ls test_dir
+mkdir
+mkdir test_dir
 cat /nonexistent.txt
+ls /nonexistent
+cd /nonexistent
 qwerty
 ```
 

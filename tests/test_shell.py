@@ -178,5 +178,37 @@ class StartupScriptTest(unittest.TestCase):
         fake_path = "./scripts/nonexistent_script.txt"
         self.assertFalse(os.path.exists(fake_path))
 
+class MkdirTest(unittest.TestCase):
+    """Проверки команды mkdir"""
+    def setUp(self):
+        """Загружает VFS перед каждым тестом"""
+        self.vfs = VFS()
+        path = Path(__file__).parent.parent / "vfs" / "simple.xml"
+        self.vfs.load_from_xml(str(path))
+
+    def test_mkdir_current(self):
+        """mkdir создаёт папку в текущей директории"""
+        result = execute("mkdir", ["newdir"], self.vfs)
+        self.assertFalse(result.error)
+        items = self.vfs.list_dir("/")
+        self.assertIn("newdir", items)
+
+    def test_mkdir_absolute(self):
+        """mkdir создаёт папку по абсолютному пути"""
+        result = execute("mkdir", ["/tmp/newdir"], self.vfs)
+        self.assertFalse(result.error)
+        items = self.vfs.list_dir("/tmp")
+        self.assertIn("newdir", items)
+
+    def test_mkdir_existing(self):
+        """mkdir не создаёт существующую папку"""
+        result = execute("mkdir", ["/tmp"], self.vfs)
+        self.assertTrue(result.error)
+
+    def test_mkdir_no_args(self):
+        """mkdir без аргументов - ошибка"""
+        result = execute("mkdir", [], self.vfs)
+        self.assertTrue(result.error)
+
 if __name__ == "__main__":
     unittest.main()
