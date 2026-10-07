@@ -19,6 +19,9 @@
       </directory>
     </directory>
     <directory name="tmp">
+      <file name=".hidden">
+        <content>Скрытый файл</content>
+      </file>
     </directory>
   </directory>
 </vfs>

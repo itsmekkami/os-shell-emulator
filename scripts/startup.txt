@@ -2,9 +2,16 @@ uname
 uname -a
 who
 ls
+ls -l
+ls -la
+ls -lh
+ls -lah
 cd /tmp
+ls
+ls -lah
+cat .hidden
+cd /home/student/../student/music/../projects
 pwd
-cat temp.txt
 cd /
 mkdir test_dir
 ls

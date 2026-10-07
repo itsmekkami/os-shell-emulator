@@ -19,14 +19,50 @@ class Result:
 
 def cmd_ls(args: list[str], vfs: VFS):
     """Команда ls - показывает содержимое папки"""
-    path = args[0] if args else None
+    flags = ""
+    path = None
+    for arg in args:
+        if arg.startswith("-"):
+            flags += arg[1:]
+        else:
+            path = arg
+    
     try:
-        items = vfs.list_dir(path)
+        items = vfs.list_dir_info(path)
     except VFSError as error:
         return Result(error=f"ls: {error}")
+    
+    if "a" not in flags:
+        items = [i for i in items if not i["name"].startswith(".")]
+    
+    if "l" in flags:
+        lines = []
+        date = datetime.now().strftime("%b %d %H:%M")
+        for item in items:
+            size = item["size"]
+            if "h" in flags:
+                size = format_size(size)
+            if item["type"] == "dir":
+                perms = "drwxr-xr-x"
+            else:
+                perms = "-rw-r--r--"
+            user = getpass.getuser()
+            lines.append(
+                f"{perms} 1 {user} {user} {size:>6} {date} {item['name']}"
+            )
+        return Result(output="\n".join(lines))
+    
     if not items:
         return Result(output="")
-    return Result(output="\n".join(items))
+    return Result(output="\n".join(i["name"] for i in items))
+
+def format_size(size: int):
+    """Преобразует размер в читаемый вид"""
+    if size < 1024:
+        return f"{size}B"
+    if size < 1024 * 1024:
+        return f"{size / 1024:.1f}K"
+    return f"{size / (1024 * 1024):.1f}M"
 
 def cmd_cd(args: list[str], vfs: VFS):
     """Команда cd - меняет текущую папку"""

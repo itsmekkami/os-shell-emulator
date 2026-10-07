@@ -141,3 +141,27 @@ class VFS:
         if name in parent["children"]:
             raise VFSError(f"mkdir: уже существует: {name}")
         parent["children"][name] = {"type": "dir", "children": {}}
+
+    def list_dir_info(self, path: str = None):
+        """Возвращает информацию о содержимом папки"""
+        node = self._get_node(path)
+        if node["type"] != "dir":
+            raise VFSError(f"не папка: {path}")
+        
+        result = []
+        for name in sorted(node["children"].keys()):
+            child = node["children"][name]
+            if child["type"] == "dir":
+                size = 0
+                type_str = "d"
+            else:
+                content = child.get("content", "")
+                size = len(content) if isinstance(content, str) else len(content)
+                type_str = "-"
+            result.append({
+                "name": name,
+                "type": child["type"],
+                "type_str": type_str,
+                "size": size,
+            })
+        return result
