@@ -54,23 +54,36 @@ class VFS:
         """Находит узел по пути"""
         if path is None:
             path = self.current_path
-        if path.startswith("/"):
-            node = self.root
-            parts = self._split_path(path)
-        else:
-            node = self._get_node(self.current_path)
-            parts = self._split_path(path)
+        
+        parts = self._split_path(path)
+
+        if not path.startswith("/"):
+            current_parts = self._split_path(self.current_path)
+            parts = current_parts + parts
+        
+        parts = self._normalize_parts(parts)
+        
+        node = self.root
         for part in parts:
-            if part in (".", ""):
-                continue
-            if part == "..":
-                continue
             if node["type"] != "dir":
-                raise VFSError(f"не папка: {path}")
+                raise VFSError(f"не папка: {part}")
             if part not in node["children"]:
                 raise VFSError(f"не найдено: {path}")
             node = node["children"][part]
         return node
+
+    def _normalize_parts(self, parts: list):
+        """Обрабатывает .. в пути"""
+        result = []
+        for part in parts:
+            if part in (".", ""):
+                continue
+            if part == "..":
+                if result:
+                    result.pop()
+                continue
+            result.append(part)
+        return result
 
     def list_dir(self, path: str = None):
         """Возвращает содержимое папки"""
@@ -98,12 +111,17 @@ class VFS:
         if node["type"] != "dir":
             raise VFSError(f"не папка: {path}")
         if path.startswith("/"):
-            self.current_path = path
+            parts = self._split_path(path)
         else:
-            if self.current_path == "/":
-                self.current_path = "/" + path
-            else:
-                self.current_path = self.current_path + "/" + path
+            current = self._split_path(self.current_path)
+            parts = current + self._split_path(path)
+        
+        parts = self._normalize_parts(parts)
+        
+        if not parts:
+            self.current_path = "/"
+        else:
+            self.current_path = "/" + "/".join(parts)
 
     def make_dir(self, path: str):
         """Создаёт новую папку в VFS"""
