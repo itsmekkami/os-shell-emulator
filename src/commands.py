@@ -8,7 +8,13 @@ from typing import Callable
 from vfs import VFS, VFSError
 
 MAX_CD_ARGS = 1
-
+BYTES_IN_KB = 1024
+BYTES_IN_MB = 1024 * 1024
+LS_FLAG_PREFIX = "-"
+LS_FLAG_ALL = "a"
+LS_FLAG_LONG = "l"
+LS_FLAG_HUMAN = "h"
+HIDDEN_PREFIX = "."
 
 class Result:
     """Результат выполнения команды"""
@@ -17,52 +23,64 @@ class Result:
         self.error = error
         self.should_exit = should_exit
 
-def cmd_ls(args: list[str], vfs: VFS):
-    """Команда ls - показывает содержимое папки"""
+def _parse_ls_args(args: list[str]):
+    """Разбирает аргументы ls на флаги и путь"""
     flags = ""
     path = None
     for arg in args:
-        if arg.startswith("-"):
+        if arg.startswith(LS_FLAG_PREFIX):
             flags += arg[1:]
         else:
             path = arg
-    
+    return flags, path
+
+def _format_long(items: list, flags: str):
+    """Формирует длинный формат вывода (ls -l)"""
+    date = datetime.now().strftime("%b %d %H:%M")
+    user = getpass.getuser()
+    lines = []
+    for item in items:
+        size = item["size"]
+        if LS_FLAG_HUMAN in flags:
+            size = format_size(size)
+        if item["type"] == "dir":
+            perms = "drwxr-xr-x"
+        else:
+            perms = "-rw-r--r--"
+        lines.append(
+            f"{perms} 1 {user} {user} {size:>6} {date} {item['name']}"
+        )
+    return "\n".join(lines)
+
+def cmd_ls(args: list[str], vfs: VFS):
+    """Команда ls - показывает содержимое папки"""
+    flags, path = _parse_ls_args(args)
+
     try:
         items = vfs.list_dir_info(path)
     except VFSError as error:
         return Result(error=f"ls: {error}")
-    
-    if "a" not in flags:
-        items = [i for i in items if not i["name"].startswith(".")]
-    
-    if "l" in flags:
-        lines = []
-        date = datetime.now().strftime("%b %d %H:%M")
-        for item in items:
-            size = item["size"]
-            if "h" in flags:
-                size = format_size(size)
-            if item["type"] == "dir":
-                perms = "drwxr-xr-x"
-            else:
-                perms = "-rw-r--r--"
-            user = getpass.getuser()
-            lines.append(
-                f"{perms} 1 {user} {user} {size:>6} {date} {item['name']}"
-            )
-        return Result(output="\n".join(lines))
-    
+
+    if LS_FLAG_ALL not in flags:
+        items = [
+            i for i in items
+            if not i["name"].startswith(HIDDEN_PREFIX)
+        ]
+
+    if LS_FLAG_LONG in flags:
+        return Result(output=_format_long(items, flags))
+
     if not items:
         return Result(output="")
     return Result(output="\n".join(i["name"] for i in items))
 
 def format_size(size: int):
     """Преобразует размер в читаемый вид"""
-    if size < 1024:
+    if size < BYTES_IN_KB:
         return f"{size}B"
-    if size < 1024 * 1024:
-        return f"{size / 1024:.1f}K"
-    return f"{size / (1024 * 1024):.1f}M"
+    if size < BYTES_IN_MB:
+        return f"{size / BYTES_IN_KB:.1f}K"
+    return f"{size / BYTES_IN_MB:.1f}M"
 
 def cmd_cd(args: list[str], vfs: VFS):
     """Команда cd - меняет текущую папку"""

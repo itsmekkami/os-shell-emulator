@@ -156,7 +156,10 @@ class VFS:
                 type_str = "d"
             else:
                 content = child.get("content", "")
-                size = len(content) if isinstance(content, str) else len(content)
+                if isinstance(content, str):
+                    size = len(content.encode("utf-8"))
+                else:
+                    size = len(content)
                 type_str = "-"
             result.append({
                 "name": name,
